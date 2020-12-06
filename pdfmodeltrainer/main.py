@@ -101,6 +101,10 @@ def train(model=None, model_path=None, output_dir=None, n_iter=100, train_data_f
         nlp.to_disk(output_dir)
         print("Saved model to", output_dir)
 
+    for text, _ in TRAIN_DATA:
+        doc = nlp(text)
+        print("Entities", [(ent.text, ent.label_) for ent in doc.ents])
+
     os.remove(train_data_file_path)
 
 

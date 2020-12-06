@@ -60,8 +60,6 @@ def main(resumes_folder=Path("./resumes"), resumes_done_folder=Path("./resumes_d
         shutil.move(join(resumes_folder, file), join(resumes_done_folder, file))
         print("Moved", file)
 
-    # main
-
 
 if __name__ == '__main__':
     plac.call(main)
