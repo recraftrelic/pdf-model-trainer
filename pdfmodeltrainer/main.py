@@ -1,4 +1,5 @@
 from pathlib import Path
+from os.path import join
 from spacy.util import minibatch, compounding
 
 import plac
@@ -6,7 +7,9 @@ import random
 import warnings
 import spacy
 import json
+import os
 
+CURRENT_PATH = Path(__file__).parent.absolute()
 TRAIN_DATA = []
 
 
@@ -17,7 +20,7 @@ TRAIN_DATA = []
     n_iter=("Number of training iterations", "option", "n", int),
     train_data_file_path=("Raw train data in json format", "option", "t", Path)
 )
-def main(model=None, model_path=None, output_dir=None, n_iter=100, train_data_file_path=None):
+def train(model=None, model_path=None, output_dir=None, n_iter=100, train_data_file_path=join(CURRENT_PATH, "./train_data.json")):
     if model or model_path is not None:
         if model is not None:
             nlp = spacy.load(model)
@@ -26,7 +29,7 @@ def main(model=None, model_path=None, output_dir=None, n_iter=100, train_data_fi
             nlp = spacy.load(Path(model_path))
             print("Loaded model '%s'" % model_path)
     else:
-        nlp = spacy.load('en')
+        nlp = spacy.load('en_core_web_sm')
         print("Created blank 'en' model")
 
     if "ner" not in nlp.pipe_names:
@@ -98,10 +101,8 @@ def main(model=None, model_path=None, output_dir=None, n_iter=100, train_data_fi
         nlp.to_disk(output_dir)
         print("Saved model to", output_dir)
 
-    for text, _ in TRAIN_DATA:
-        doc = nlp(text)
-        print("Entities", [(ent.text, ent.label_) for ent in doc.ents])
+    os.remove(train_data_file_path)
 
 
 if __name__ == "__main__":
-    plac.call(main)
+    plac.call(train)

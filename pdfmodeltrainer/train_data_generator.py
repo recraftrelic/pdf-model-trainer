@@ -1,23 +1,26 @@
 from pathlib import Path
+from os.path import join
 from pdfminer.high_level import extract_text
 
 import re
 import json
 import docx2txt
+import os
 
+CURRENT_PATH = Path(__file__).parent.absolute()
 TRAIN_DATA = []
 TRAIN_META_DATA = {
     "PERSON": {
         "REPLACE_FROM": "John Smith",
-        "FILE": "./sentences/person.txt"
+        "FILE": Path(join(CURRENT_PATH, "./sentences/person.txt"))
     },
     "FN": {
         "REPLACE_FROM": "James",
-        "FILE": "./sentences/first_name.txt"
+        "FILE": Path(join(CURRENT_PATH, "./sentences/first_name.txt"))
     },
     "LN": {
         "REPLACE_FROM": "Lee",
-        "FILE": "./sentences/last_name.txt"
+        "FILE": Path(join(CURRENT_PATH, "./sentences/last_name.txt"))
     },
 }
 
@@ -35,8 +38,8 @@ def generate_sentences(file_name, replace_from, replace_with):
     return modified_sentences
 
 
-def train():
-    with open(Path("./train.json")) as train_file:
+def generate_train_data():
+    with open(Path(join(CURRENT_PATH, "./train_meta.json"))) as train_file:
         data = json.load(train_file)
 
         for resume_record in data:
@@ -48,8 +51,8 @@ def train():
 
             for entity_key in entities:
                 if entity_key in TRAIN_META_DATA:
-                    sentences_file_path = TRAIN_META_DATA[entity_key].FILE
-                    replace_from = TRAIN_META_DATA[entity_key].REPLACE_FROM
+                    sentences_file_path = TRAIN_META_DATA[entity_key]["FILE"]
+                    replace_from = TRAIN_META_DATA[entity_key]["REPLACE_FROM"]
 
                 sentences = generate_sentences(sentences_file_path, replace_from, entities[entity_key])
                 for sentence in sentences:
@@ -80,9 +83,11 @@ def train():
                         }
                     )
 
-    with open(Path("./train_data.json"), "w") as train_data_file:
+    with open(Path(join(CURRENT_PATH, "./train_data.json")), "w") as train_data_file:
         json.dump(TRAIN_DATA, train_data_file)
+
+    os.remove(Path(join(CURRENT_PATH, "./train_meta.json")))
 
 
 if __name__ == '__main__':
-    train()
+    generate_train_data()

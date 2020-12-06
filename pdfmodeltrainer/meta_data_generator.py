@@ -1,12 +1,13 @@
 from os import listdir
 from os.path import isfile, join, splitext
-from create_train_json import train
+from train_data_generator import generate_train_data
 from pathlib import Path
 
 import json
 import shutil
 import plac
 
+CURRENT_PATH = Path(__file__).parent.absolute()
 train_json = []
 
 
@@ -16,6 +17,8 @@ train_json = []
 )
 def main(resumes_folder=Path("./resumes"), resumes_done_folder=Path("./resumes_done")):
     files = [f for f in listdir(resumes_folder) if isfile(join(resumes_folder, f))]
+
+    print(files)
 
     for file in files:
         if file.find(".DS_Store") == -1:
@@ -47,11 +50,18 @@ def main(resumes_folder=Path("./resumes"), resumes_done_folder=Path("./resumes_d
 
             train_json.append(train_record)
 
-    with open("./train.json", "w") as train_json_file:
+    with open(Path(join(CURRENT_PATH, "./train_meta.json")), "w") as train_json_file:
         json.dump(train_json, train_json_file)
 
-    train()
+    # generate train json
+    generate_train_data()
 
     for file in files:
         shutil.move(join(resumes_folder, file), join(resumes_done_folder, file))
         print("Moved", file)
+
+    # main
+
+
+if __name__ == '__main__':
+    plac.call(main)
