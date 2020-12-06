@@ -9,6 +9,7 @@ import json
 
 TRAIN_DATA = []
 
+
 @plac.annotations(
     model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
     model_path=("Model path", "option", "mp", Path),
